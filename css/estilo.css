@@ -129,20 +129,36 @@ nav {
     background-color: #fff;
 }
 
-/* Ajuste no Modal para ficar mais suave */
+/* Modal de Senha */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 209, 220, 0.8);
+    backdrop-filter: blur(5px);
+}
+
 .modal-content {
     background-color: white;
-    margin: 5% auto; /* Subiu um pouco mais */
+    margin: 15% auto;
     padding: 40px;
-    border-radius: 30px; /* Bordas bem arredondadas */
+    border-radius: 30px;
     width: 350px;
-    border: none; /* Tirei a borda grossa */
-    box-shadow: 0 15px 40px rgba(255, 209, 220, 0.6); /* Sombra rosada leve */
+    border: none;
+    box-shadow: 0 15px 40px rgba(255, 209, 220, 0.6);
     text-align: center;
 }
 
-/* Inputs mais modernos e finos */
-#memberForm input, #memberForm select, #adminPass {
+.modal-content h3 {
+    color: var(--rosa-escuro);
+    margin-bottom: 20px;
+}
+
+.modal-content input {
     width: 100%;
     padding: 12px;
     margin-bottom: 15px;
@@ -150,12 +166,29 @@ nav {
     background-color: #fafafa;
     border-radius: 12px;
     font-size: 0.9rem;
-    box-sizing: border-box; /* Garante que não passe da largura */
+    box-sizing: border-box;
 }
 
-#memberForm input:focus {
+.modal-content input:focus {
     border-color: var(--rosa-principal);
     background-color: #fff;
+}
+
+.modal-content button {
+    background-color: var(--rosa-principal);
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #444;
+    transition: 0.3s;
+}
+
+.modal-content button:hover {
+    background-color: var(--rosa-escuro);
+    color: white;
 }
 
 .admin-only {
@@ -220,4 +253,72 @@ footer {
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     border: 2px dashed var(--rosa-principal);
+}
+
+/* Estilos para botões do admin */
+.admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.admin-actions button {
+    background-color: var(--rosa-principal);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #444;
+    transition: 0.3s;
+}
+
+.admin-actions button:hover {
+    background-color: var(--rosa-escuro);
+    color: white;
+}
+
+/* Estilos para mensagens de aviso */
+.message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    display: none;
+    max-width: 300px;
+}
+
+.message.success {
+    background-color: #4CAF50;
+}
+
+.message.error {
+    background-color: #f44336;
+}
+
+.message.info {
+    background-color: var(--rosa-escuro);
+}
+
+/* Botões admin nos cards */
+.admin-only {
+    background-color: var(--rosa-principal);
+    border: none;
+    padding: 5px 10px;
+    margin: 2px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #444;
+    transition: 0.3s;
+}
+
+.admin-only:hover {
+    background-color: var(--rosa-escuro);
+    color: white;
 }

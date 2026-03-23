@@ -20,28 +20,14 @@
         <button onclick="buscarMembro()">Buscar</button>
     </div>
 <nav id="familyNav">
-   <button class="btn-family" onclick="filtrarFamilia('bee')">Família Bee</button>
-
-   <button class="btn-family active" onclick="location.reload()">Página Inicial</button>
-
-    <button id="btnNovaFamilia" class="btn-family admin-only" style="display: none;">Nova Família +</button>
-    
-    <button class="btn-admin-link" onclick="toggleAdminPanel()">Acesso Restrito</button>
+    <button class="btn-family" onclick="filtrarFamilia('all')">Todas as Famílias</button>
+    <button class="btn-family" onclick="filtrarFamilia('all')">Página Inicial</button>
 </nav>
+<div id="familyButtons" class="family-buttons"></div>
 
 
 
-    <main id="treeContainer">
-        <div class="member-card">
-            <div class="photo-container">
-                <img src="texte.png" alt="Foto">
-            </div>
-            <div class="info">
-                <h3>Myh <span class="surname">Bee</span></h3>
-                <p class="status">Matriarca</p>
-            </div>
-        </div>
-    </main>
+    <main id="treeContainer"></main>
 <div id="managementSection" style="display: none;">
     <h2>Painel da House Bee</h2>
     
@@ -49,13 +35,15 @@
         <button onclick="mostrarFormMembro()">+ Adicionar Membro</button>
         <button onclick="novaFamilia()">+ Nova Família</button>
         <button onclick="atualizarSelects()">Atualizar Listas</button>
+        <button onclick="excluirFamilia()">Excluir Família</button>
     </div>
 
     <form id="memberForm" style="display:none;">
         <h3>Novo Integrante</h3>
         <input type="text" id="nomeMembro" placeholder="Nome do Personagem" required>
         <input type="text" id="sobrenomeMembro" placeholder="Sobrenome">
-        <input type="url" id="fotoMembro" placeholder="Link da Foto">
+        <label>Foto (upload):</label>
+        <input type="file" id="fotoMembro" accept="image/*">
 
         <label>Família:</label>
         <select id="selectFamilia"><option value="bee">Família Bee</option></select>
@@ -79,8 +67,20 @@
     </form>
 </div>
 
+    <div id="messageBox" class="message"></div>
+
+    <!-- Modal de Senha -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h3>Coloque a senha secreta da House Bee</h3>
+            <input type="password" id="adminPassword" placeholder="Digite a senha...">
+            <button onclick="verificarSenha()">Entrar</button>
+            <button onclick="fecharModal()">Cancelar</button>
+        </div>
+    </div>
+
     <footer>
-        <button id="adminLogin" onclick="toggleAdminPanel()">Acesso Restrito (ADM)</button>
+        <p>House Bee © 2026</p>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
     <script src="js/script.js"></script>
