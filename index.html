@@ -48,6 +48,7 @@
     <div class="admin-actions">
         <button onclick="mostrarFormMembro()">+ Adicionar Membro</button>
         <button onclick="novaFamilia()">+ Nova Família</button>
+        <button onclick="atualizarSelects()">Atualizar Listas</button>
     </div>
 
     <form id="memberForm" style="display:none;">
@@ -56,6 +57,9 @@
         <input type="text" id="sobrenomeMembro" placeholder="Sobrenome">
         <input type="url" id="fotoMembro" placeholder="Link da Foto">
 
+        <label>Família:</label>
+        <select id="selectFamilia"><option value="bee">Família Bee</option></select>
+
         <label>Cargo na Família:</label>
         <select id="hierarquia" onchange="checkHierarquia()">
             <option value="base">Membro Comum</option>
@@ -63,10 +67,13 @@
         </select>
 
         <div id="parentescoFields">
-            <label>Vincular a:</label>
+            <label>Vincular a (pais):</label>
             <select id="selectPai"><option value="">Selecionar Pai...</option></select>
             <select id="selectMae"><option value="">Selecionar Mãe...</option></select>
         </div>
+
+        <label>Cônjuge (opcional):</label>
+        <select id="selectConjuge"><option value="">Selecionar cônjuge...</option></select>
 
         <button type="button" class="btn-save" onclick="executarCadastro()">Confirmar Cadastro</button>
     </form>
@@ -75,6 +82,7 @@
     <footer>
         <button id="adminLogin">Acesso Restrito (ADM)</button>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
     <script src="js/script.js"></script>
 
 </body>
