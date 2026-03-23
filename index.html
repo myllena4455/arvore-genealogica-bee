@@ -4,14 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>House Bee - Árvore Genealógica</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fascinate&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
 
-    <section class="banner">
+    <!-- Splash Screen -->
+    <div id="splashScreen">
+        <div class="splash-content">
+            <h1 id="beeText">
+                <span>B</span><span>e</span><span>e</span>
+            </h1>
+            <span id="houseText">
+                <span>H</span><span>o</span><span>u</span><span>s</span><span>e</span><span id="hive">🍯</span>
+            </span>
+            <div id="beeIcon">🐝</div>
+            <div class="trail"></div>
+        </div>
+    </div>
+
+    <section class="banner" id="mainContent" style="display: none;">
         <div class="banner-content">
             <h1>House Bee</h1>
-            <p>Conectando linhagens e histórias</p>
         </div>
     </section>
 
@@ -33,9 +49,14 @@
     
     <div class="admin-actions">
         <button onclick="mostrarFormMembro()">+ Adicionar Membro</button>
-        <button onclick="novaFamilia()">+ Nova Família</button>
+        <button onclick="adicionarFamiliaFromInput()">+ Nova Família</button>
         <button onclick="atualizarSelects()">Atualizar Listas</button>
         <button onclick="excluirFamilia()">Excluir Família</button>
+    </div>
+
+    <div class="family-creation">
+        <input type="text" id="familyNameInput" placeholder="Digite o nome da nova família" />
+        <button class="btn-family" onclick="adicionarFamiliaFromInput()">Criar Família</button>
     </div>
 
     <form id="memberForm" style="display:none;">
@@ -80,8 +101,11 @@
     </div>
 
     <footer>
-        <p>House Bee © 2026</p>
+        <p>House Bee © 2026. Todos os direitos reservados. Desenvolvido por Myllena.</p>
+        <p>Mais informações: <a href="https://wa.me/5581986010094?text=Ol%C3%A1%20Myllena%2C%20vi%20o%20site%20e%20gostaria%20de%20saber%20mais%20sobre%20or%C3%A7amento%20de%20sites" target="_blank" rel="noopener noreferrer">Clique aqui</a> (WhatsApp: +55 81 98601-0094)</p>
     </footer>
+    </div> <!-- Fechamento do mainContent -->
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
     <script src="js/script.js"></script>
 

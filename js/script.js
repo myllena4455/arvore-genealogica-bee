@@ -38,9 +38,9 @@ function verificarSenha() {
         isAdmin = true;
         showMessage("🎉 Painel ADM liberado! Agora você pode editar membros, criar famílias e gerenciar relacionamentos.", "success");
         document.getElementById('managementSection').style.display = 'block';
-        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'inline-block');
         atualizarSelects();
         renderFamilyNav();
+        desenharArvore();
         fecharModal();
     } else {
         showMessage("Senha incorreta! Acesso negado.", "error");
@@ -56,13 +56,92 @@ document.getElementById('adminPassword').addEventListener('keypress', function(e
     }
 });
 
+function animateBee() {
+    const bee = document.getElementById('beeIcon');
+    const hive = document.getElementById('hive');
+    const trailContainer = document.querySelector('.trail');
+
+    // Pegar posição da colmeia
+    const hiveRect = hive.getBoundingClientRect();
+    const splashRect = document.getElementById('splashScreen').getBoundingClientRect();
+    const potPos = {
+        x: hiveRect.left - splashRect.left - splashRect.width / 2,
+        y: hiveRect.top - splashRect.top - splashRect.height / 2
+    };
+
+    // Pegar posição do último "e" de "Bee"
+    const lastE = document.querySelector('#beeText span:nth-child(3)'); // Segundo "e" de "Bee"
+    const lastERect = lastE.getBoundingClientRect();
+    const endPos = {
+        x: lastERect.left - splashRect.left - splashRect.width / 2 + lastERect.width / 2,
+        y: lastERect.top - splashRect.top - splashRect.height / 2 + lastERect.height / 2
+    };
+
+    // Setar posição inicial da abelha na colmeia
+    bee.style.left = `${splashRect.width / 2 + potPos.x}px`;
+    bee.style.top = `${splashRect.height / 2 + potPos.y}px`;
+    bee.style.transform = 'translate(-50%, -50%) rotate(0deg)';
+
+    const trailPoints = [];
+    let t = 0; // Tempo da animação (0 a 1)
+
+    function draw() {
+        // Definir a curva (Caminho da abelha)
+        // Ponto inicial: Colmeia | Pontos de controle: Curva no ar | Ponto final: Último "e" de "Bee"
+        const startX = potPos.x;
+        const startY = potPos.y;
+        const cp1X = -100, cp1Y = -200;   // Curva para cima e esquerda
+        const cp2X = endPos.x - 50, cp2Y = endPos.y - 50;  // Ajustar para chegar ao final
+        const endX = endPos.x;
+        const endY = endPos.y;
+
+        // Cálculo da posição atual (Curva de Bézier Cúbica)
+        const x = Math.pow(1-t, 3) * startX + 3 * Math.pow(1-t, 2) * t * cp1X + 3 * (1-t) * Math.pow(t, 2) * cp2X + Math.pow(t, 3) * endX;
+        const y = Math.pow(1-t, 3) * startY + 3 * Math.pow(1-t, 2) * t * cp1Y + 3 * (1-t) * Math.pow(t, 2) * cp2Y + Math.pow(t, 3) * endY;
+
+        // Calcular direção (derivada para rotação)
+        const dx = 3 * Math.pow(1-t, 2) * (cp1X - startX) + 6 * (1-t) * t * (cp2X - cp1X) + 3 * Math.pow(t, 2) * (endX - cp2X);
+        const dy = 3 * Math.pow(1-t, 2) * (cp1Y - startY) + 6 * (1-t) * t * (cp2Y - cp1Y) + 3 * Math.pow(t, 2) * (endY - cp2Y);
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI); // Ângulo em graus
+
+        // Guardar rastro
+        if (t < 1 && trailPoints.length < 50) { // Limitar pontos
+            trailPoints.push({x, y});
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dot.style.left = `${splashRect.width / 2 + x}px`;
+            dot.style.top = `${splashRect.height / 2 + y}px`;
+            trailContainer.appendChild(dot);
+        }
+
+        // Posicionar abelha com rotação
+        bee.style.left = `${splashRect.width / 2 + x}px`;
+        bee.style.top = `${splashRect.height / 2 + y}px`;
+        bee.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+        bee.style.opacity = t > 0.05 ? 1 : 0;
+
+        // Incrementar animação
+        if (t < 1) {
+            t += 0.003; // Velocidade da abelha (mais lenta para ver o caminho)
+            requestAnimationFrame(draw);
+        } else {
+            // Pouso: animar suavemente para baixo
+            bee.style.transition = 'transform 1s ease-out';
+            bee.style.transform = `translate(-50%, -50%) rotate(0deg) scale(0.8)`;
+        }
+    }
+
+    setTimeout(() => requestAnimationFrame(draw), 1000); // Iniciar após 1s
+}
+
 function renderFamilyNav() {
     const container = document.getElementById('familyNav');
     let html = '<button class="btn-family" onclick="filtrarFamilia(\'all\')">Todas as Famílias</button>';
     html += '<button class="btn-family" onclick="filtrarFamilia(\'all\')">Página Inicial</button>';
     html += '<button class="btn-admin-link" onclick="toggleAdminPanel()">Acesso Restrito</button>';
     if (document.querySelector('#managementSection').style.display === 'block') {
-        html += '<button id="btnNovaFamilia" class="btn-family admin-only" onclick="novaFamilia()">Nova Família +</button>';
+        const adminClass = isAdmin ? ' admin-only active' : ' admin-only';
+        html += `<button id="btnNovaFamilia" class="btn-family${adminClass}" onclick="novaFamilia()">Nova Família +</button>`;
     }
     container.innerHTML = html;
     renderFamilyButtons();
@@ -103,14 +182,28 @@ function mostrarFormMembro() {
 }
 
 function novaFamilia() {
-    const nome = prompt("Digite o nome da nova família:");
-    if (!nome || !nome.trim()) return;
-    const lower = nome.trim().toLowerCase();
-    if (familias.includes(lower)) return showMessage('Família já existe.', "error");
+    const input = document.getElementById('familyNameInput');
+    const nome = input ? input.value.trim() : '';
+
+    if (!nome) {
+        return showMessage('Digite o nome da nova família no campo acima.', "error");
+    }
+
+    const lower = nome.toLowerCase();
+    if (familias.includes(lower)) {
+        return showMessage('Família já existe.', "error");
+    }
+
     familias.push(lower);
-    showMessage(`Família ${nome.trim()} criada!`, "success");
+    if (input) input.value = '';
+    showMessage(`Família ${nome} criada!`, "success");
     renderFamilyNav();
     atualizarSelects();
+    desenharArvore();
+}
+
+function adicionarFamiliaFromInput() {
+    novaFamilia();
 }
 
 async function excluirFamilia() {
@@ -157,19 +250,19 @@ function atualizarSelects() {
 
 async function carregarMembros() {
     if (temSupabase()) {
-        const { data, error } = await supabaseClient.from('membros').select('*').order('id', { ascending: true });
+        const { data, error } = await supabaseClient.from('membros').select('id,nome,sobrenome,foto_url,status,familia,pai_id,mae_id,conjuge_id').order('id', { ascending: true });
         if (!error && data && data.length) {
             membros = data.map(item => ({
                 id: item.id,
                 nome: item.nome,
                 sobrenome: item.sobrenome,
-                foto: item.foto,
+                foto: item.foto_url || '',
                 status: item.status,
                 familia: item.familia,
-                pai: item.pai,
-                mae: item.mae,
-                conjuge: item.conjuge,
-                filhos: item.filhos || []
+                pai: item.pai_id || null,
+                mae: item.mae_id || null,
+                conjuge: item.conjuge_id || null,
+                filhos: []
             }));
         } else if (error) {
             console.error('Supabase load error', error);
@@ -187,8 +280,34 @@ async function carregarMembros() {
 
 async function salvarMembroSupabase(membro) {
     if (!temSupabase()) return;
-    const { error } = await supabaseClient.from('membros').upsert(membro, { onConflict: 'id' });
-    if (error) console.error('Supabase save error', error);
+
+    // Durante o desenvolvimento, a tabela pode não ter todas as colunas ainda (ex: conjuge/pai/mae).
+    const supaData = {
+        id: membro.id,
+        nome: membro.nome,
+        sobrenome: membro.sobrenome,
+        foto_url: membro.foto || '',
+        status: membro.status,
+        familia: membro.familia
+    };
+
+    if (membro.pai !== null && membro.pai !== undefined) supaData.pai_id = membro.pai;
+    if (membro.mae !== null && membro.mae !== undefined) supaData.mae_id = membro.mae;
+    if (membro.conjuge !== null && membro.conjuge !== undefined) supaData.conjuge_id = membro.conjuge;
+
+    let { error } = await supabaseClient.from('membros').upsert(supaData, { onConflict: 'id' });
+
+    if (error && error.code === 'PGRST204' && error.message && error.message.includes('conjuge')) {
+        // Se não existe coluna conjuge, re-tentar sem esse campo
+        delete supaData.conjuge;
+        const retry = await supabaseClient.from('membros').upsert(supaData, { onConflict: 'id' });
+        error = retry.error;
+    }
+
+    if (error) {
+        console.error('Supabase save error', error);
+        showMessage('Erro ao salvar no Supabase: ' + error.message, 'error');
+    }
 }
 
 async function excluirMembroSupabase(id) {
@@ -221,6 +340,24 @@ async function executarCadastro() {
         if (c && c.filhos && c.filhos.length > 0) return showMessage('Trava 2: pessoa com filhos não pode casar com quem já tem família.', "error");
     }
 
+    let foto = '';
+    if (arquivoFoto) {
+        try {
+            const fileName = `${Date.now()}_${arquivoFoto.name}`;
+            const { data, error } = await supabaseClient.storage.from('fotos').upload(fileName, arquivoFoto);
+            if (error) throw error;
+            foto = supabaseClient.storage.from('fotos').getPublicUrl(fileName).data.publicUrl;
+        } catch (err) {
+            console.error('Erro ao fazer upload da foto:', err);
+            if (err && err.message && err.message.indexOf('Bucket not found') >= 0) {
+                showMessage('Bucket "fotos" não encontrado no Supabase. Configure o bucket em Storage e tente novamente. Membro será salvo sem foto.', 'error');
+            } else {
+                showMessage('Erro ao fazer upload da foto. Membro será cadastrado sem foto.', 'warning');
+            }
+            foto = '';
+        }
+    }
+
     const id = membros.length ? Math.max(...membros.map(m => m.id)) + 1 : 1;
     const novo = { id, nome, sobrenome, foto, status: (hierarquia === 'patriarca' ? 'Patriarca' : 'Membro'), familia, pai, mae, conjuge, filhos: [] };
 
@@ -244,8 +381,11 @@ async function executarCadastro() {
 
 function criarCard(m) {
     const c = m.conjuge ? membros.find(x => x.id === m.conjuge) : null;
-    const adminButtons = isAdmin ? `<button class="admin-only" onclick="editarMembro(${m.id})">Editar</button><button class="admin-only" onclick="tornarOrfao(${m.id})">Reset (órfão)</button><button class="admin-only" style="color:red;" onclick="removerMembro(${m.id})">Excluir</button>` : '';
-    return `<div class="member-card"><div class="photo-container"><img src="${m.foto}" alt="Foto"></div><div class="info"><h3>${m.nome} <span class="surname">${m.sobrenome}</span></h3><p class="status">${m.status} - Família: ${m.familia || 'Órfão'}</p><p>Pai: ${m.pai ? (membros.find(x => x.id === m.pai)?.nome || 'Desconhecido') : 'Nenhum'} | Mãe: ${m.mae ? (membros.find(x => x.id === m.mae)?.nome || 'Desconhecida') : 'Nenhuma'}</p><p>Cônjuge: ${c ? `${c.nome} ${c.sobrenome}` : 'Nenhum'}</p><p>Filhos: ${m.filhos.length}</p>${adminButtons}</div></div>`;
+    const placeholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="150" height="150"%3E%3Crect width="150" height="150" fill="%23ffd1dc"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="14" fill="%23663"%3ESem Foto%3C/text%3E%3C/svg%3E';
+    const errorPlaceholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="150" height="150"%3E%3Crect width="150" height="150" fill="%23ffb7c5"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="14" fill="%23422"%3EImagem Inválida%3C/text%3E%3C/svg%3E';
+    const fotoUrl = m.foto && m.foto.trim() ? m.foto.trim() : placeholder;
+    const adminButtons = isAdmin ? `<button class="admin-only active" onclick="editarMembro(${m.id})">Editar</button><button class="admin-only active" onclick="tornarOrfao(${m.id})">Reset (órfão)</button><button class="admin-only active" style="color:red;" onclick="removerMembro(${m.id})">Excluir</button>` : '';
+    return `<div class="member-card"><div class="photo-container"><img src="${fotoUrl}" alt="Foto de ${m.nome} ${m.sobrenome}" onerror="this.src='${errorPlaceholder}';"></div><div class="info"><h3>${m.nome} <span class="surname">${m.sobrenome}</span></h3><p class="status">${m.status} - Família: ${m.familia || 'Órfão'}</p><p>Pai: ${m.pai ? (membros.find(x => x.id === m.pai)?.nome || 'Desconhecido') : 'Nenhum'} | Mãe: ${m.mae ? (membros.find(x => x.id === m.mae)?.nome || 'Desconhecida') : 'Nenhuma'}</p><p>Cônjuge: ${c ? `${c.nome} ${c.sobrenome}` : 'Nenhum'}</p><p>Filhos: ${m.filhos.length}</p>${adminButtons}</div></div>`;
 }
 
 function desenharArvore() {
@@ -318,4 +458,17 @@ function buscarMembro() {
     showMessage(achados.map(m => `${m.nome} ${m.sobrenome} - ${m.familia || 'Órfão'}`).join('\n'), "info");
 }
 
-window.onload = carregarMembros;
+window.onload = function() {
+    // Mostrar splash screen por 4 segundos
+    setTimeout(() => {
+        document.getElementById('splashScreen').classList.add('fadeOut');
+        setTimeout(() => {
+            document.getElementById('splashScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            carregarMembros(); // Carregar o conteúdo após a splash
+        }, 1000); // Tempo do fade out
+    }, 4000); // Tempo total da splash
+
+    // Iniciar animação da abelha com JS
+    animateBee();
+};
