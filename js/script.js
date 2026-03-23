@@ -52,6 +52,14 @@ function novaFamilia() {
     atualizarSelects();
 }
 
+function checkHierarquia() {
+    const hierarquia = document.getElementById('hierarquia').value;
+    const label = document.querySelector('#parentescoFields label');
+    if (label) {
+        label.textContent = hierarquia === 'patriarca' ? 'Crianças (pai/mãe):' : 'Vincular a (pais):';
+    }
+}
+
 function atualizarSelects() {
     const pai = document.getElementById('selectPai');
     const mae = document.getElementById('selectMae');
