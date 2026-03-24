@@ -178,6 +178,42 @@ nav {
     background-color: #fff;
 }
 
+.modal-content label {
+    display: block;
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 10px;
+    color: var(--rosa-escuro);
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.modal-content input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 2px dashed var(--rosa-principal);
+    background: linear-gradient(145deg, #fefbfc, #fff5f7);
+    border-radius: 12px;
+    font-size: 0.85rem;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-content input[type="file"]:hover {
+    border-color: var(--rosa-escuro);
+    background: linear-gradient(145deg, #fff5f7, #ffccdd);
+    box-shadow: 0 4px 12px rgba(255, 209, 220, 0.4);
+}
+
+.modal-content input[type="file"]:focus {
+    border-color: var(--rosa-escuro);
+    background: linear-gradient(145deg, #fff, #ffd1dc);
+    outline: none;
+    box-shadow: 0 6px 16px rgba(255, 209, 220, 0.5);
+}
+
 .modal-content button {
     background-color: var(--rosa-principal);
     border: none;
@@ -188,6 +224,8 @@ nav {
     font-weight: bold;
     color: #444;
     transition: 0.3s;
+    font-family: 'Fascinate', sans-serif;
+    letter-spacing: 0.5px;
 }
 
 .modal-content button:hover {

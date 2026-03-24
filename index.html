@@ -35,7 +35,8 @@
         <input type="text" id="searchInput" placeholder="Pesquisar membro ou família...">
         <button onclick="buscarMembro()">Buscar</button>
     </div>
-<nav id="familyNav">
+
+    <nav id="familyNav">
     <button class="btn-family" onclick="filtrarFamilia('all')">Todas as Famílias</button>
     <button class="btn-family" onclick="filtrarFamilia('all')">Página Inicial</button>
 </nav>
@@ -89,6 +90,19 @@
 </div>
 
     <div id="messageBox" class="message"></div>
+
+    <!-- Modal de Edição de Membro -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3>Editar Personagem</h3>
+            <input type="text" id="editNome" placeholder="Nome" required>
+            <input type="text" id="editSobrenome" placeholder="Sobrenome">
+            <label>Foto (upload):</label>
+            <input type="file" id="editFoto" accept="image/*">
+            <button class="btn-save" onclick="salvarEdicaoMembro()">Salvar Alterações</button>
+            <button onclick="fecharEditModal()">Cancelar</button>
+        </div>
+    </div>
 
     <!-- Modal de Senha -->
     <div id="passwordModal" class="modal">

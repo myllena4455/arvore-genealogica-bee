@@ -3,6 +3,10 @@ const SUPABASE_URL = "https://ltcvsdhcrlwbvzbezcwm.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_VV2VV93_3Srsyh0GfBG41A_EzLzckYa";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Cloudinary config
+const CLOUDINARY_CLOUD_NAME = "atelier-do-gandolf";
+const CLOUDINARY_UPLOAD_PRESET = "arvore_genealogica"; // Crie isso no painel Cloudinary
+
 let familias = ["bee"];
 let membros = [
     { id: 1, nome: "Myh", sobrenome: "Bee", foto: "texte.png", status: "Matriarca", familia: "bee", pai: null, mae: null, conjuge: null, filhos: [] }
@@ -343,17 +347,26 @@ async function executarCadastro() {
     let foto = '';
     if (arquivoFoto) {
         try {
-            const fileName = `${Date.now()}_${arquivoFoto.name}`;
-            const { data, error } = await supabaseClient.storage.from('fotos').upload(fileName, arquivoFoto);
-            if (error) throw error;
-            foto = supabaseClient.storage.from('fotos').getPublicUrl(fileName).data.publicUrl;
+            // Upload para Cloudinary
+            const formData = new FormData();
+            formData.append('file', arquivoFoto);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                { method: 'POST', body: formData }
+            );
+            
+            if (!response.ok) {
+                throw new Error(`Upload falhou: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            foto = data.secure_url; // URL segura da imagem no Cloudinary
+            showMessage('Foto enviada com sucesso!', 'success');
         } catch (err) {
             console.error('Erro ao fazer upload da foto:', err);
-            if (err && err.message && err.message.indexOf('Bucket not found') >= 0) {
-                showMessage('Bucket "fotos" não encontrado no Supabase. Configure o bucket em Storage e tente novamente. Membro será salvo sem foto.', 'error');
-            } else {
-                showMessage('Erro ao fazer upload da foto. Membro será cadastrado sem foto.', 'warning');
-            }
+            showMessage('Erro ao fazer upload da foto. Membro será cadastrado sem foto.', 'warning');
             foto = '';
         }
     }
@@ -427,15 +440,71 @@ function editarMembro(id) {
     const membro = membros.find(m => m.id === id);
     if (!membro) return showMessage('Membro não encontrado.', "error");
 
-    const novoNome = prompt('Editar nome:', membro.nome);
-    const novoSobrenome = prompt('Editar sobrenome:', membro.sobrenome);
-    const novaFoto = prompt('Editar URL foto:', membro.foto);
+    // Guardar o ID do membro sendo editado
+    window.membroEmEdicao = id;
 
-    if (novoNome) membro.nome = novoNome;
-    if (novoSobrenome) membro.sobrenome = novoSobrenome;
-    if (novaFoto) membro.foto = novaFoto;
+    // Preencher modal com dados atuais
+    document.getElementById('editNome').value = membro.nome;
+    document.getElementById('editSobrenome').value = membro.sobrenome;
+    document.getElementById('editFoto').value = membro.foto;
 
-    salvarMembroSupabase(membro);
+    // Abrir modal
+    document.getElementById('editModal').style.display = 'block';
+    document.getElementById('editNome').focus();
+}
+
+function fecharEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+    window.membroEmEdicao = null;
+}
+
+async function salvarEdicaoMembro() {
+    const id = window.membroEmEdicao;
+    if (!id) return;
+
+    const membro = membros.find(m => m.id === id);
+    if (!membro) return showMessage('Membro não encontrado.', "error");
+
+    const novoNome = document.getElementById('editNome').value.trim();
+    const novoSobrenome = document.getElementById('editSobrenome').value.trim();
+    const arquivoFoto = document.getElementById('editFoto').files[0] || null;
+
+    if (!novoNome) return showMessage('Nome não pode estar vazio.', "error");
+
+    let novaFoto = membro.foto; // Manter foto atual se não houver novo upload
+
+    if (arquivoFoto) {
+        try {
+            // Upload para Cloudinary
+            const formData = new FormData();
+            formData.append('file', arquivoFoto);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                { method: 'POST', body: formData }
+            );
+            
+            if (!response.ok) {
+                throw new Error(`Upload falhou: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            novaFoto = data.secure_url;
+            showMessage('Foto enviada com sucesso!', 'success');
+        } catch (err) {
+            console.error('Erro ao fazer upload da foto:', err);
+            showMessage('Erro ao fazer upload da foto. Membro será salvo com foto anterior.', 'warning');
+        }
+    }
+
+    membro.nome = novoNome;
+    membro.sobrenome = novoSobrenome;
+    membro.foto = novaFoto;
+
+    await salvarMembroSupabase(membro);
+    showMessage('Membro atualizado com sucesso!', "success");
+    fecharEditModal();
     atualizarSelects();
     desenharArvore();
 }

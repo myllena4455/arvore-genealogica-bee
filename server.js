@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -15,7 +16,7 @@ app.use(bodyParser.json());
 app.use(express.static('public')); // Servir arquivos estáticos
 
 // Conectar ao MongoDB (use sua string de conexão)
-mongoose.connect('mongodb://localhost:27017/arvore_genealogica', {
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/arvore_genealogica', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => console.log('Conectado ao MongoDB'))
