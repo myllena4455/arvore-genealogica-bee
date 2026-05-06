@@ -419,8 +419,25 @@ function desenharArvore() {
     const lideres = lista.filter(m => m.status === 'Patriarca' || m.status === 'Matriarca' || (m.pai === null && m.mae === null));
     const outros = lista.filter(m => !lideres.includes(m));
     let html = '<div class="geracao topo">' + lideres.map(criarCard).join('') + '</div>';
-    if (outros.length) html += '<div class="geracao">' + outros.map(criarCard).join('') + '</div>';
+    
+    // Agrupar outros membros para garantir que fiquem abaixo
+    if (outros.length) {
+        html += '<div class="geracao">' + outros.map(criarCard).join('') + '</div>';
+    }
+    
     container.innerHTML = html;
+}
+
+function checkHierarquia() {
+    const hierarquia = document.getElementById('hierarquia').value;
+    const parentescoFields = document.getElementById('parentescoFields');
+    if (hierarquia === 'patriarca') {
+        parentescoFields.style.display = 'none';
+        document.getElementById('selectPai').value = '';
+        document.getElementById('selectMae').value = '';
+    } else {
+        parentescoFields.style.display = 'block';
+    }
 }
 
 async function removerMembro(id) {
@@ -446,7 +463,9 @@ function editarMembro(id) {
     // Preencher modal com dados atuais
     document.getElementById('editNome').value = membro.nome;
     document.getElementById('editSobrenome').value = membro.sobrenome;
-    document.getElementById('editFoto').value = membro.foto;
+    
+    // Resetar o campo de arquivo para não mostrar o caminho falso (C:\fakepath)
+    document.getElementById('editFoto').value = '';
 
     // Abrir modal
     document.getElementById('editModal').style.display = 'block';

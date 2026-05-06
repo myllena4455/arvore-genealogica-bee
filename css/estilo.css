@@ -46,12 +46,14 @@ body {
     border-radius: 50px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     display: flex;
+    max-width: 90%;
 }
 
 .search-bar input {
     border: none;
     padding: 10px 20px;
     width: 300px;
+    max-width: 60vw;
     outline: none;
     font-size: 1rem;
     border-radius: 50px;
@@ -253,6 +255,8 @@ nav {
     justify-content: center;
     gap: 20px;
     position: relative;
+    flex-wrap: wrap;
+    width: 100%;
 }
 
 /* Linha visual conectando (opcional) */
@@ -298,6 +302,111 @@ footer a:hover {
     border: 1px solid var(--rosa-principal);
     color: var(--rosa-escuro);
     padding: 8px 20px;
+}
+
+/* Responsividade para Celular */
+@media (max-width: 600px) {
+    .banner {
+        height: 180px;
+    }
+
+    .banner-content h1 {
+        font-size: 2.2rem;
+    }
+
+    .search-bar {
+        width: 90%;
+        margin-top: -20px;
+    }
+
+    .search-bar input {
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .search-bar button {
+        padding: 10px 15px;
+    }
+
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        padding: 0 10px;
+    }
+
+    .btn-family {
+        margin: 0;
+        padding: 8px 15px;
+        font-size: 0.85rem;
+        flex: 1 1 calc(45% - 10px);
+        text-align: center;
+    }
+
+    .btn-admin-link {
+        margin: 10px 0 0 0;
+        width: 100%;
+    }
+
+    #treeContainer {
+        padding: 20px 10px;
+        gap: 30px;
+        overflow-x: hidden;
+    }
+
+    .geracao {
+        gap: 15px;
+    }
+
+    .member-card {
+        width: 140px; /* Levemente menor para caber melhor lado a lado */
+        padding: 15px 10px;
+    }
+
+    .photo-container img {
+        width: 75px;
+        height: 75px;
+    }
+
+    .member-card h3 {
+        font-size: 1rem;
+    }
+
+    .member-card p {
+        font-size: 0.8rem;
+    }
+
+    .modal-content {
+        width: 90%;
+        margin: 10% auto;
+        padding: 20px;
+    }
+
+    .admin-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    .admin-actions button {
+        width: 100%;
+    }
+
+    .family-creation {
+        display: flex;
+        flex-direction: column;
+        width: 90%;
+        margin: 20px auto;
+        gap: 10px;
+    }
+
+    .family-creation input, .family-creation button {
+        width: 100%;
+    }
+}
     border-radius: 20px;
     cursor: pointer;
     font-size: 0.8rem;
