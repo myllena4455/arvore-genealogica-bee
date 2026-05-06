@@ -5,7 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
-const Membro = require('./models/Membro');
+const Vaga = require('./models/Vaga');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,8 +15,8 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public')); // Servir arquivos estáticos
 
-// Conectar ao MongoDB (use sua string de conexão)
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/arvore_genealogica', {
+// Conectar ao MongoDB
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/vagas_reservas', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => console.log('Conectado ao MongoDB'))
@@ -33,70 +33,98 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Rotas
-app.get('/api/membros', async (req, res) => {
+// Rotas para Vagas
+app.get('/api/vagas', async (req, res) => {
   try {
-    const membros = await Membro.find().populate('pai mae conjuge filhos');
-    res.json(membros);
+    const vagas = await Vaga.find();
+    res.json(vagas);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/api/membros', upload.single('foto'), async (req, res) => {
+app.post('/api/vagas', upload.single('foto'), async (req, res) => {
   try {
-    const { nome, sobrenome, status, familia, pai, mae } = req.body;
+    const { personagem, obra, idadePersonagem, familia, usuarioNome, usuarioIdade, usuarioPronomes, usuarioWhatsapp } = req.body;
     const foto = req.file ? `/uploads/${req.file.filename}` : req.body.foto;
 
-    // Validações
-    const existe = await Membro.findOne({ nome: new RegExp(`^${nome}$`, 'i') });
+    const existe = await Vaga.findOne({ personagem: new RegExp(`^${personagem}$`, 'i') });
     if (existe) {
-      return res.status(400).json({ error: `${nome} já pertence à família ${existe.familia}!` });
+      return res.status(400).json({ error: `${personagem} já está cadastrado!` });
     }
 
-    const novoMembro = new Membro({ nome, sobrenome, foto, status, familia, pai, mae });
-    await novoMembro.save();
-    res.json(novoMembro);
+    const novaVaga = new Vaga({ 
+        personagem, 
+        obra, 
+        idadePersonagem, 
+        familia, 
+        usuarioNome, 
+        usuarioIdade, 
+        usuarioPronomes, 
+        usuarioWhatsapp, 
+        foto,
+        status: usuarioNome ? 'Ocupado' : 'Livre' // Se já vem com nome de usuário, assume ocupado
+    });
+    await novaVaga.save();
+    res.json(novaVaga);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.put('/api/membros/:id/casar', async (req, res) => {
+app.post('/api/vagas/:id/reservar', async (req, res) => {
   try {
-    const { conjugeId } = req.body;
-    const membro = await Membro.findById(req.params.id);
-    const conjuge = await Membro.findById(conjugeId);
+    const { usuarioNome, usuarioIdade, usuarioPronomes, usuarioWhatsapp } = req.body;
+    const vaga = await Vaga.findById(req.params.id);
+    if (!vaga) return res.status(404).json({ error: 'Vaga não encontrada' });
+    if (vaga.status !== 'Livre') return res.status(400).json({ error: 'Personagem não está livre' });
 
-    if (!membro || !conjuge) return res.status(404).json({ error: 'Membro não encontrado' });
-
-    // Trava 1: Só órfãos podem casar
-    if (membro.pai || membro.mae || conjuge.pai || conjuge.mae) {
-      return res.status(400).json({ error: 'Apenas órfãos podem se casar!' });
-    }
-
-    // Trava 2: Nenhum pode ter filhos
-    if (membro.filhos.length > 0 || conjuge.filhos.length > 0) {
-      return res.status(400).json({ error: 'Pessoas com filhos não podem se casar!' });
-    }
-
-    membro.conjuge = conjugeId;
-    conjuge.conjuge = req.params.id;
-    await membro.save();
-    await conjuge.save();
-    res.json({ message: 'Casamento realizado!' });
+    vaga.status = 'Reservado';
+    vaga.usuarioNome = usuarioNome;
+    vaga.usuarioIdade = usuarioIdade;
+    vaga.usuarioPronomes = usuarioPronomes;
+    vaga.usuarioWhatsapp = usuarioWhatsapp;
+    vaga.reservadoEm = new Date();
+    await vaga.save();
+    res.json(vaga);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/api/membros/:id/filho', async (req, res) => {
-  try {
-    const { nome, sobrenome, foto } = req.body;
-    const pai = await Membro.findById(req.params.id);
-    const mae = pai.conjuge ? await Membro.findById(pai.conjuge) : null;
+app.put('/api/vagas/:id/status', async (req, res) => {
+  try {, usuarioWhatsapp } = req.body;
+    const vaga = await Vaga.findById(req.params.id);
+    if (!vaga) return res.status(404).json({ error: 'Vaga não encontrada' });
 
-    if (!pai) return res.status(404).json({ error: 'Pai não encontrado' });
+    vaga.status = status;
+    if (status === 'Ocupado' || status === 'Reservado') {
+        vaga.usuarioNome = usuarioNome;
+        vaga.usuarioIdade = usuarioIdade;
+        vaga.usuarioPronomes = usuarioPronomes;
+        vaga.usuarioWhatsapp = usuarioWhatsapp;
+    } else if (status === 'Livre') {
+        vaga.usuarioNome = null;
+        vaga.usuarioIdade = null;
+        vaga.usuarioPronomes = null;
+        vaga.usuarioWhatsappnull;
+        vaga.usuarioPronomes = null;
+    }
+    await vaga.save();
+    res.json(vaga);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/vagas/:id', async (req, res) => {
+    try {
+        await Vaga.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Vaga removida' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
     const filho = new Membro({
       nome,

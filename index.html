@@ -32,74 +32,95 @@
     </section>
 
     <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Pesquisar membro ou família...">
-        <button onclick="buscarMembro()">Buscar</button>
+        <input type="text" id="searchInput" placeholder="Pesquisar personagem ou obra...">
+        <button onclick="buscarVaga()">Buscar</button>
     </div>
 
-    <nav id="familyNav">
-    <button class="btn-family" onclick="filtrarFamilia('all')">Todas as Famílias</button>
-    <button class="btn-family" onclick="filtrarFamilia('all')">Página Inicial</button>
-</nav>
-<div id="familyButtons" class="family-buttons"></div>
+    <nav id="tabsNav">
+        <button class="btn-tab active" onclick="mostrarAba('vagas')">Vagas Disponíveis</button>
+        <button class="btn-tab" onclick="mostrarAba('reservas')">Reservas Atuais</button>
+        <button class="btn-admin-link" onclick="toggleAdminPanel()">Acesso Administrativo</button>
+    </nav>
 
+    <main id="contentContainer">
+        <div id="vagasContainer" class="grid-container"></div>
+        <div id="reservasContainer" class="grid-container" style="display: none;"></div>
+    </main>
 
-
-    <main id="treeContainer"></main>
 <div id="managementSection" style="display: none;">
-    <h2>Painel da House Bee</h2>
+    <h2>Painel Administrativo</h2>
     
     <div class="admin-actions">
-        <button onclick="mostrarFormMembro()">+ Adicionar Membro</button>
-        <button onclick="adicionarFamiliaFromInput()">+ Nova Família</button>
-        <button onclick="atualizarSelects()">Atualizar Listas</button>
-        <button onclick="excluirFamilia()">Excluir Família</button>
+        <button onclick="mostrarFormVaga()">+ Adicionar Personagem</button>
+        <button onclick="carregarVagas()">Atualizar Lista</button>
     </div>
 
-    <div class="family-creation">
-        <input type="text" id="familyNameInput" placeholder="Digite o nome da nova família" />
-        <button class="btn-family" onclick="adicionarFamiliaFromInput()">Criar Família</button>
-    </div>
-
-    <form id="memberForm" style="display:none;">
-        <h3>Novo Integrante</h3>
-        <input type="text" id="nomeMembro" placeholder="Nome do Personagem" required>
-        <input type="text" id="sobrenomeMembro" placeholder="Sobrenome">
-        <label>Foto (upload):</label>
-        <input type="file" id="fotoMembro" accept="image/*">
-
-        <label>Família:</label>
-        <select id="selectFamilia"><option value="bee">Família Bee</option></select>
-
-        <label>Cargo na Família:</label>
-        <select id="hierarquia" onchange="checkHierarquia()">
-            <option value="base">Membro Comum</option>
-            <option value="patriarca">Patriarca / Matriarca (Topo)</option>
-        </select>
-
-        <div id="parentescoFields">
-            <label>Vincular a (pais):</label>
-            <select id="selectPai"><option value="">Selecionar Pai...</option></select>
-            <select id="selectMae"><option value="">Selecionar Mãe...</option></select>
+    <form id="vagaForm" style="display:none;">
+        <h3>Novo Personagem</h3>
+        <div class="form-section">
+            <h4>Dados do Personagem</h4>
+            <input type="text" id="nomePersonagem" placeholder="Nome do Personagem" required>
+            <input type="text" id="idadePersonagem" placeholder="Idade do Personagem">
+            <input type="text" id="obraPersonagem" placeholder="Obra / Anime / Jogo" required>
+            <label>Vai entrar com família?</label>
+            <input type="text" id="familiaPersonagem" placeholder="Qual família? (Deixe vazio se não)">
+            <label>Foto (upload):</label>
+            <input type="file" id="fotoPersonagem" accept="image/*">
         </div>
 
-        <label>Cônjuge (opcional):</label>
-        <select id="selectConjuge"><option value="">Selecionar cônjuge...</option></select>
+        <div class="form-section">
+            <h4>Seus Dados (Opcional - se já estiver ocupado)</h4>
+            <input type="text" id="usuarioNome" placeholder="Seu Nome / Nick">
+            <input type="text" id="usuarioIdade" placeholder="Sua Idade">
+            <input type="text" id="usuarioPronomes" placeholder="Seus Pronomes">
+            <input type="text" id="usuarioWhatsapp" placeholder="Seu WhatsApp (Ex: 55819...)">
+        </div>
 
-        <button type="button" class="btn-save" onclick="executarCadastro()">Confirmar Cadastro</button>
+        <button type="button" class="btn-save" onclick="executarCadastroVaga()">Confirmar Cadastro</button>
     </form>
 </div>
 
     <div id="messageBox" class="message"></div>
 
-    <!-- Modal de Edição de Membro -->
+    <!-- Modal de Reserva -->
+    <div id="reservaModal" class="modal">
+        <div class="modal-content">
+            <h3>Reservar Personagem</h3>
+            <p id="reservaNomePersonagem"></p>
+            <div class="form-group">
+                <input type="text" id="reservaUsuarioNome" placeholder="Seu Nome / Nick" required>
+                <input type="text" id="reservaUsuarioIdade" placeholder="Sua Idade" required>
+                <input type="text" id="reservaUsuarioPronomes" placeholder="Seus Pronomes" required>
+                <input type="text" id="reservaUsuarioWhatsapp" placeholder="Seu WhatsApp (Ex: 55819...)" required>
+            </div>
+            <button class="btn-save" onclick="confirmarReserva()">Confirmar Reserva</button>
+            <button onclick="fecharReservaModal()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Edição (Admin) -->
     <div id="editModal" class="modal">
         <div class="modal-content">
-            <h3>Editar Personagem</h3>
-            <input type="text" id="editNome" placeholder="Nome" required>
-            <input type="text" id="editSobrenome" placeholder="Sobrenome">
-            <label>Foto (upload):</label>
-            <input type="file" id="editFoto" accept="image/*">
-            <button class="btn-save" onclick="salvarEdicaoMembro()">Salvar Alterações</button>
+            <h3>Gerenciar Personagem</h3>
+            <p id="editInfoPersonagem"></p>
+            
+            <label>Status:</label>
+            <select id="editStatusVaga">
+                <option value="Livre">Livre</option>
+                <option value="Reservado">Reservado</option>
+                <option value="Ocupado">Ocupado</option>
+            </select>
+
+            <div id="editDadosUsuario">
+                <label>Dados do Usuário:</label>
+                <input type="text" id="editUsuarioNome" placeholder="Nome/Nick">
+                <input type="text" id="editUsuarioIdade" placeholder="Idade">
+                <input type="text" id="editUsuarioWhatsapp" placeholder="WhatsApp">
+                <input type="text" id="editUsuarioPronomes" placeholder="Pronomes">
+            </div>
+
+            <button class="btn-save" onclick="salvarAlteracaoAdmin()">Salvar Alterações</button>
+            <button class="btn-delete" onclick="excluirVaga()">Excluir Personagem</button>
             <button onclick="fecharEditModal()">Cancelar</button>
         </div>
     </div>

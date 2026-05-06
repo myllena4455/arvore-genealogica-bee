@@ -268,6 +268,151 @@ nav {
     height: 20px;
     background: var(--rosa-principal);
 }
+/* Estilos para Grid de Vagas */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    width: 90%;
+    max-width: 1200px;
+}
+
+.card-vaga {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(255, 209, 220, 0.4);
+    transition: transform 0.3s;
+    text-align: center;
+    border-bottom: 5px solid var(--rosa-principal);
+}
+
+.card-vaga:hover {
+    transform: translateY(-5px);
+}
+
+.card-vaga img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+.card-body h3 {
+    margin: 0;
+    color: var(--texto-cor);
+}
+
+.obra {
+    font-size: 0.9em;
+    color: var(--rosa-escuro);
+    margin-bottom: 10px;
+}
+
+.status-livre { color: #059669; font-weight: bold; }
+.status-reservado { color: #d97706; font-weight: bold; }
+.status-ocupado { color: #dc2626; font-weight: bold; }
+
+.user-info {
+    font-size: 0.85em;
+    background: #fff5f7;
+    padding: 5px;
+    border-radius: 5px;
+    color: #951d4f;
+}
+
+.btn-reserva, .btn-admin, .btn-save, .btn-delete {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-reserva { background: var(--rosa-principal); color: #444; }
+.btn-reserva:hover { background: var(--rosa-escuro); color: white; }
+
+.btn-admin { background: #e5e7eb; color: #374151; }
+.btn-admin:hover { background: #d1d5db; }
+
+.btn-save { background: #4CAF50; color: white; }
+.btn-delete { background: #dc2626; color: white; }
+
+.not-found {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    font-size: 1.5em;
+    color: #059669;
+    font-weight: bold;
+    background: #ecfdf5;
+    border-radius: 20px;
+}
+
+/* Ajustes de Navegação por Abas */
+#tabsNav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.btn-tab {
+    padding: 10px 20px;
+    border: 2px solid var(--rosa-principal);
+    background: white;
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--texto-cor);
+    font-weight: bold;
+}
+
+.btn-tab.active {
+    background: var(--rosa-principal);
+    color: #444;
+}
+
+.form-section {
+    background: #fff5f7;
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    border: 1px solid var(--rosa-principal);
+}
+
+.form-section h4 {
+    margin-top: 0;
+    color: var(--rosa-escuro);
+    border-bottom: 1px solid var(--rosa-principal);
+    padding-bottom: 5px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.detalhes {
+    font-size: 0.85em;
+    color: #888;
+    margin: 2px 0;
+}
+
+#editDadosUsuario {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--rosa-principal);
+}
+
 footer {
     margin-top: 50px;
     padding: 20px;
