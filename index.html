@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>House Bee - √Årvore Geneal√≥gica</title>
+    <title>House Bee - ¡rvore GenealÛgica</title>
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fascinate&display=swap" rel="stylesheet">
@@ -18,133 +21,112 @@
                 <span>B</span><span>e</span><span>e</span>
             </h1>
             <span id="houseText">
-                <span>H</span><span>o</span><span>u</span><span>s</span><span>e</span><span id="hive">üçØ</span>
+                <span>H</span><span>o</span><span>u</span><span>s</span><span>e</span><span id="hive">??</span>
             </span>
-            <div id="beeIcon">üêù</div>
+            <div id="beeIcon">??</div>
             <div class="trail"></div>
         </div>
     </div>
 
-    <section class="banner" id="mainContent" style="display: none;">
-        <div class="banner-content">
-            <h1>House Bee</h1>
-        </div>
-    </section>
-
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Pesquisar personagem ou obra...">
-        <button onclick="buscarVaga()">Buscar</button>
-    </div>
-
-    <nav id="tabsNav">
-        <button class="btn-tab active" onclick="mostrarAba('vagas')">Vagas Dispon√≠veis</button>
-        <button class="btn-tab" onclick="mostrarAba('reservas')">Reservas Atuais</button>
-        <button class="btn-admin-link" onclick="toggleAdminPanel()">Acesso Administrativo</button>
-    </nav>
-
-    <main id="contentContainer">
-        <div id="vagasContainer" class="grid-container"></div>
-        <div id="reservasContainer" class="grid-container" style="display: none;"></div>
-    </main>
-
-<div id="managementSection" style="display: none;">
-    <h2>Painel Administrativo</h2>
-    
-    <div class="admin-actions">
-        <button onclick="mostrarFormVaga()">+ Adicionar Personagem</button>
-        <button onclick="carregarVagas()">Atualizar Lista</button>
-    </div>
-
-    <form id="vagaForm" style="display:none;">
-        <h3>Novo Personagem</h3>
-        <div class="form-section">
-            <h4>Dados do Personagem</h4>
-            <input type="text" id="nomePersonagem" placeholder="Nome do Personagem" required>
-            <input type="text" id="idadePersonagem" placeholder="Idade do Personagem">
-            <input type="text" id="obraPersonagem" placeholder="Obra / Anime / Jogo" required>
-            <label>Vai entrar com fam√≠lia?</label>
-            <input type="text" id="familiaPersonagem" placeholder="Qual fam√≠lia? (Deixe vazio se n√£o)">
-            <label>Foto (upload):</label>
-            <input type="file" id="fotoPersonagem" accept="image/*">
-        </div>
-
-        <div class="form-section">
-            <h4>Seus Dados (Opcional - se j√° estiver ocupado)</h4>
-            <input type="text" id="usuarioNome" placeholder="Seu Nome / Nick">
-            <input type="text" id="usuarioIdade" placeholder="Sua Idade">
-            <input type="text" id="usuarioPronomes" placeholder="Seus Pronomes">
-            <input type="text" id="usuarioWhatsapp" placeholder="Seu WhatsApp (Ex: 55819...)">
-        </div>
-
-        <button type="button" class="btn-save" onclick="executarCadastroVaga()">Confirmar Cadastro</button>
-    </form>
-</div>
-
-    <div id="messageBox" class="message"></div>
-
-    <!-- Modal de Reserva -->
-    <div id="reservaModal" class="modal">
-        <div class="modal-content">
-            <h3>Reservar Personagem</h3>
-            <p id="reservaNomePersonagem"></p>
-            <div class="form-group">
-                <input type="text" id="reservaUsuarioNome" placeholder="Seu Nome / Nick" required>
-                <input type="text" id="reservaUsuarioIdade" placeholder="Sua Idade" required>
-                <input type="text" id="reservaUsuarioPronomes" placeholder="Seus Pronomes" required>
-                <input type="text" id="reservaUsuarioWhatsapp" placeholder="Seu WhatsApp (Ex: 55819...)" required>
+    <!-- Container Principal do Site -->
+    <div id="mainContent" style="display: none;">
+        <header class="header">
+            <div class="honey-logo">
+                <h1>House Bee</h1>
+                <p>Nossa Grande Colmeia Familiar</p>
             </div>
-            <button class="btn-save" onclick="confirmarReserva()">Confirmar Reserva</button>
-            <button onclick="fecharReservaModal()">Cancelar</button>
+            
+            <div id="familyNav" class="family-tabs">
+                <!-- Botıes de famÌlias ser„o gerados via JS -->
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar membro...">
+                <button onclick="buscarMembro()">??</button>
+            </div>
+        </header>
+
+        <main class="tree-canvas">
+            <div id="treeContainer">
+                <p>Carregando membros da colmeia...</p>
+            </div>
+        </main>
+
+        <section id="managementSection" class="admin-panel" style="display: none;">
+            <div class="admin-header">
+                <h2>Gerenciar Colmeia</h2>
+                <div class="admin-btns">
+                    <button class="btn-primary" onclick="mostrarFormMembro()">+ Novo Membro</button>
+                    <button class="btn-secondary" onclick="excluirFamilia()">Excluir FamÌlia</button>
+                </div>
+            </div>
+
+            <!-- Form para FamÌlia -->
+            <div class="admin-row">
+                <input type="text" id="familyNameInput" placeholder="Nome da Nova FamÌlia">
+                <button onclick="novaFamilia()">Criar FamÌlia</button>
+            </div>
+
+            <div id="memberForm" class="modal-form" style="display: none;">
+                <div class="modal-content">
+                    <h3>Cadastrar Nova Abelha</h3>
+                    <input type="text" id="nomeMembro" placeholder="Nome" required>
+                    <input type="text" id="sobrenomeMembro" placeholder="Sobrenome">
+                    <select id="selectFamilia">
+                        <option value="bee">Bee (Principal)</option>
+                    </select>
+                    
+                    <select id="hierarquia" onchange="checkHierarquia()">
+                        <option value="membro">Membro Comum</option>
+                        <option value="patriarca">Patriarca / Matriarca</option>
+                    </select>
+
+                    <div id="parentescoFields">
+                        <select id="selectPai"><option value="">Selecionar Pai...</option></select>
+                        <select id="selectMae"><option value="">Selecionar M„e...</option></select>
+                    </div>
+
+                    <select id="selectConjuge">
+                        <option value="">Selecionar CÙnjuge...</option>
+                    </select>
+
+                    <label for="fotoMembro">Foto de Perfil:</label>
+                    <input type="file" id="fotoMembro" accept="image/*">
+                    
+                    <div class="form-footer">
+                        <button class="btn-save" onclick="executarCadastro()">Cadastrar</button>
+                        <button class="btn-cancel" onclick="document.getElementById('memberForm').style.display='none'">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modais GenÈricos -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h3>¡rea Secreta da Rainha</h3>
+            <p>Digite a senha para gerenciar a colmeia:</p>
+            <input type="password" id="adminPassword" placeholder="Senha Mestra">
+            <button onclick="verificarSenha()">Entrar</button>
+            <button onclick="fecharModal()">Voltar</button>
         </div>
     </div>
 
-    <!-- Modal de Edi√ß√£o (Admin) -->
     <div id="editModal" class="modal">
         <div class="modal-content">
-            <h3>Gerenciar Personagem</h3>
-            <p id="editInfoPersonagem"></p>
-            
-            <label>Status:</label>
-            <select id="editStatusVaga">
-                <option value="Livre">Livre</option>
-                <option value="Reservado">Reservado</option>
-                <option value="Ocupado">Ocupado</option>
-            </select>
-
-            <div id="editDadosUsuario">
-                <label>Dados do Usu√°rio:</label>
-                <input type="text" id="editUsuarioNome" placeholder="Nome/Nick">
-                <input type="text" id="editUsuarioIdade" placeholder="Idade">
-                <input type="text" id="editUsuarioWhatsapp" placeholder="WhatsApp">
-                <input type="text" id="editUsuarioPronomes" placeholder="Pronomes">
-            </div>
-
-            <button class="btn-save" onclick="salvarAlteracaoAdmin()">Salvar Altera√ß√µes</button>
-            <button class="btn-delete" onclick="excluirVaga()">Excluir Personagem</button>
+            <h3>Editar Membro</h3>
+            <input type="text" id="editNome" placeholder="Nome">
+            <input type="text" id="editSobrenome" placeholder="Sobrenome">
+            <label>Trocar Foto:</label>
+            <input type="file" id="editFoto" accept="image/*">
+            <button class="btn-save" onclick="salvarEdicaoMembro()">Salvar AlteraÁıes</button>
             <button onclick="fecharEditModal()">Cancelar</button>
         </div>
     </div>
 
-    <!-- Modal de Senha -->
-    <div id="passwordModal" class="modal">
-        <div class="modal-content">
-            <h3>Coloque a senha secreta da House Bee</h3>
-            <input type="password" id="adminPassword" placeholder="Digite a senha...">
-            <button onclick="verificarSenha()">Entrar</button>
-            <button onclick="fecharModal()">Cancelar</button>
-        </div>
-    </div>
+    <div id="messageBox" class="message"></div>
 
-    <footer>
-        <p>House Bee ¬© 2026. Todos os direitos reservados. Desenvolvido por Myllena.</p>
-        <p>Mais informa√ß√µes: <a href="https://wa.me/5581986010094?text=Ol%C3%A1%20Myllena%2C%20vi%20o%20site%20e%20gostaria%20de%20saber%20mais%20sobre%20or%C3%A7amento%20de%20sites" target="_blank" rel="noopener noreferrer">Clique aqui</a> (WhatsApp: +55 81 98601-0094)</p>
-    </footer>
-    </div> <!-- Fechamento do mainContent -->
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="js/script.js"></script>
-
 </body>
 </html>
