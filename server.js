@@ -3,7 +3,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const multer = require('multer');
 const path = require('path');
 const Vaga = require('./models/Vaga');
 
@@ -156,5 +155,5 @@ app.delete('/api/membros/:id', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Servidor House Bee rodando na porta ${PORT}`);
 });
